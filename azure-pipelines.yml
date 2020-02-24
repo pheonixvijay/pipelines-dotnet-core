@@ -6,52 +6,27 @@
 trigger:
 - master
 
-pool:
-  vmImage: 'ubuntu-latest'
-
 variables:
-  buildConfiguration: 'Release'
+    buildConfiguration: 'Release'
 
-steps:
-- task: UseDotNet@2
-  inputs:
-    version: '3.0.x'
-- task: UseDotNet@2
-  inputs:
-    version: '2.2.x'
-    packageType: runtime
-
-- task: DotNetCoreCLI@2
-  displayName: Restore
-  inputs:
-    command: restore
-    projects: '**/*.csproj'
-
-- task: DotNetCoreCLI@2
-  displayName: 'Build the project'
-  inputs:
-    command: build
-    projects: '**/*.csproj'
-    arguments: '--configuration Release'
-
-- task: DotNetCoreCLI@2
-  displayName: Run Test
-  inputs:
-    command: test
-    projects: '**/*Test*/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --collect "Code Coverage"'
-
-- task: DotNetCoreCLI@2
-  displayName: Publish
-  inputs:
-    command: publish
-    publishWebProjects: True
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: True
-
-# this code takes all the files in $(Build.ArtifactStagingDirectory) and uploads them as an artifact of your build.
-- task: PublishBuildArtifacts@1
-  displayName: Artifact Creation
-  inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
-    artifactName: 'myWebsiteName'
+stages:
+    - stage: A
+      displayName: My Stage A
+      jobs:
+          - job: 
+            displayName: '1st Job'
+            pool:
+              vmImage: 'ubuntu-latest'
+            steps:
+                - task: DotNetCoreCLI@2
+                  displayName: 'Build the project'
+                  inputs:
+                      command: build
+                      projects: '**/*.csproj'
+                      arguments: '--configuration Release'
+                - task: DotNetCoreCLI@2
+                  displayName: 'Run the test'
+                  inputs:
+                      command: test
+                      projects: '**/Test*/**.csproj'
+                      arguments: '--configuration $(buildConfiguration) --collect "Code Coverage"'
